@@ -1,11 +1,6 @@
 pipeline {
     agent any
     stages {
-        stage('Checkout Code') {
-            steps {
-                git 'https://github.com/tejas527/healthcare-devsecops-system'
-            }
-        }
         stage('Code Analysis (SAST)') {
             steps {
                 sh '''
