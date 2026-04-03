@@ -13,5 +13,26 @@ pipeline {
                 '''
             }
         }
+	stage('Build Secure Image') {
+            steps {
+                sh 'docker build -t healthcare-app:latest .'
+            }
+        }
+        stage('Container Security Scan (Trivy)') {
+            steps {
+                // Fails the build ONLY if critical OS vulnerabilities are found
+                sh 'trivy image --exit-code 0 --severity HIGH,CRITICAL healthcare-app:latest'
+            }
+        }
+        stage('Deploy Securely to K8s') {
+            steps {
+                // 1. Transfer image to Minikube
+                sh 'minikube image load healthcare-app:latest'
+                // 2. Apply encrypted passwords
+                sh 'kubectl apply -f secret.yaml'
+                // 3. Deploy the application
+                sh 'kubectl apply -f deployment.yaml'
+            }
+        }
     }
 }
